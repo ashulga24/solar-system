@@ -27,10 +27,10 @@ jobs:
             - name: Chekout Repo
               uses: actions/checkout@v4
 
-            - name: setup NOdeJS Version - 18
+            - name: setup NodeJS Version - ${{ matrix.nodejs_version }}
               uses: actions/setup-node@v3
               with:
-                node-version: 18
+                node-version: ${{ matrix.nodejs_version }}
 
             - name: Install Dependencies
               run: npm install
