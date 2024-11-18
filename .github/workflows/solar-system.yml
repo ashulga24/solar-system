@@ -20,8 +20,8 @@ jobs:
                 nodejs_version: [18, 19, 20]
                 operating_system: [ubuntu-latest, macos-latest]
                 exclude:
-                    - nodejs_version: 18
-                      operating_system: macos-latest
+#                    - nodejs_version: 18
+                    -  operating_system: macos-latest
         runs-on: ubuntu-latest
         steps:
             - name: Chekout Repo
@@ -39,8 +39,9 @@ jobs:
               id: nodejs-unit-testing-step
               run: npm test
 
+# the condition we used is excessive, it is just for test
             - name: Archive Test Result
-              if: failure() && ( steps.nodejs-unit-testing-step.outcome == 'failure' || steps.nodejs-unit-testing-step.outcome == 'success' )
+              if:  ( steps.nodejs-unit-testing-step.outcome == 'failure' || steps.nodejs-unit-testing-step.outcome == 'success' )
               uses: actions/upload-artifact@v3
               with:
                 name: Mocha-Test-Result
@@ -53,8 +54,8 @@ jobs:
                 nodejs_version: [18, 19, 20]
                 operating_system: [ubuntu-latest, macos-latest]
                 exclude:
-                    - nodejs_version: 18
-                      operating_system: macos-latest
+      #              - nodejs_version: 18
+                    -  operating_system: macos-latest
         runs-on: ubuntu-latest
         steps:
             - name: Chekout Repo
