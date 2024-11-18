@@ -39,13 +39,23 @@ jobs:
               id: nodejs-unit-testing-step
               run: npm test
 
-# the condition we used is excessive, it is just for test
+# the condition we used is excessive, it is just for test.
+# it says that this step should be executed only `on failure` and ....
+# so this step would be SKIPPED! from execution!
+            # - name: Archive Test Result
+            #   if: failure() && ( steps.nodejs-unit-testing-step.outcome == 'failure' || steps.nodejs-unit-testing-step.outcome == 'success' )
+            #   uses: actions/upload-artifact@v3
+            #   with:
+            #     name: Mocha-Test-Result
+            #     path: test-result.xml
+
+# instead we would use `always()` so the results would always be stored
             - name: Archive Test Result
-              if: failure() && ( steps.nodejs-unit-testing-step.outcome == 'failure' || steps.nodejs-unit-testing-step.outcome == 'success' )
+              if: always()
               uses: actions/upload-artifact@v3
               with:
-                name: Mocha-Test-Result
-                path: test-result.xml
+                  name: Mocha-Test-Result
+                  path: test-result.xml
 
     code-coverage:
         name: Code Coverage
