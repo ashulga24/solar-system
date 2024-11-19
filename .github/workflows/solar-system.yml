@@ -110,10 +110,11 @@ jobs:
                 path: coverage
                 retention-days: 5
 
-        docker:
-          name: Containerization
-          runs-on: ubuntiu-latest
-          steps:
+    docker:
+        name: Containerization
+        runs-on: ubuntiu-latest
+        needs: [ code-coverage, unit-testing ]
+        steps:
             - name: Checkout
               uses: actions/checkout@v4
 
