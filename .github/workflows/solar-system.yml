@@ -32,6 +32,16 @@ jobs:
               with:
                 node-version: ${{ matrix.nodejs_version }}
 
+                # we need to create a unique key on VM type where we do chaching, as we run different OS types
+                # so we use `name of the machine-node-modules-hash-of-package.json-file`
+                # so wehnever file changes - we would invalidate cache and create new cache
+                # and it would be clear bsaed on hash that file has changed
+            - name: Cache NPM dependencies
+              uses: actions/cache@v3
+              with:
+                path: node_modules # ~/.npm
+                key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+
             - name: Install Dependencies
               run: npm install
 
@@ -39,6 +49,8 @@ jobs:
               id: nodejs-unit-testing-step
               run: npm test
 
+            - name: show files generated
+              run: ls -la
 # the condition we used is excessive, it is just for test.
 # it says that this step should be executed only `on failure` and ....
 # so this step would be SKIPPED! from execution!
@@ -56,7 +68,7 @@ jobs:
               uses: actions/upload-artifact@v3
               with:
                   name: Mocha-Test-Result
-                  path: test-result.xml
+                  path: test-results.xml
 
     code-coverage:
         name: Code Coverage
@@ -76,6 +88,12 @@ jobs:
               uses: actions/setup-node@v3
               with:
                 node-version: ${{ matrix.nodejs_version }}
+
+            - name: Cache NPM dependencies
+              uses: actions/cache@v3
+              with:
+                  path: node_modules # ~/.npm
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
 
             - name: Install Dependencies
               run: npm install
