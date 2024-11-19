@@ -138,7 +138,7 @@ jobs:
                   -p 3000:3000 \
                   -e MONGO_URI=$MONGO_URI \
                   -e MONGO_USERNAME=$MONGO_USERNAME \
-                  -e MONGOPASSWORD=$MONGO_PASSWORD \
+                  -e MONGO_PASSWORD=$MONGO_PASSWORD \
                   ${{ env.DOCKER_USERNAME }}/solar-system:${{ github.sha }}
 
                 export IP=$(docker instapect -f '{{range .NetwrokSettings.Networks}}.{{.IPAddress}}{{end}}' solar-system-app)
