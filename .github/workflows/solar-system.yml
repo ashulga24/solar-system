@@ -81,6 +81,19 @@ jobs:
 
     code-coverage:
         name: Code Coverage
+        container:
+          image: node:18
+        services:
+          mongo-db:
+            image: siddharth67/mongo-db:non-prod
+# becasue of docker local netwrok created between job_container and service_container - there is no need to expose ports
+            options:
+              --name mongo
+        env:
+          # also in MONGO_URI we replace `localhost` with the name we have given to the service_container above
+          MONGO_URI: 'mongodb://mongo:27017/superData'
+          MONGO_USERNAME: non-prod-user       # can be also set as Repository vars
+          MONGO_PASSWORD: non-prod-password   # can be also set as Repository secret
         strategy:
             matrix:
                 nodejs_version: [18, 19, 20]
@@ -92,13 +105,14 @@ jobs:
         steps:
             - name: Chekout Repo
               uses: actions/checkout@v4
+# as long as we switched to node:18 image to use a job_container,
+# we can comment this out
+            # - name: setup NodeJS Version - ${{ matrix.nodejs_version }}
+            #   uses: actions/setup-node@v3
+            #   with:
+            #     node-version: ${{ matrix.nodejs_version }}
 
-            - name: setup NodeJS Version - ${{ matrix.nodejs_version }}
-              uses: actions/setup-node@v3
-              with:
-                node-version: ${{ matrix.nodejs_version }}
-
-                # same as above
+                # same as above in Unit Testing Job
             - name: Cache NPM dependencies
               uses: actions/cache@v3
               with:
