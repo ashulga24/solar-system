@@ -123,7 +123,27 @@ jobs:
               with:
                 username: ${{ vars.DOCKER_USERNAME }}
                 password: ${{ secrets.DOCKER_PASS }}
-            
+
+# github token is automatically generated when each WF is running!
+# ${{ github.repository_owner }} - already contains username
+# for each WF job guthub actomatically creates a GITHUB_TOKEN which is valid 24H
+# which can be used in workflows.
+# and this token is used to authenticate on behalf of you in WF job
+# each token has some perissions (like read ) by defult.
+# if we want to extend permissions with wrtie, we heed to add `permissions` sections, like
+# jobs:
+#   triage:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: write
+#       pull-request: write
+
+            - name: GHCR login
+              uses: docker/login-action@v2.2.0
+              with:
+                username: ${{ github.repository_owner }}
+                password: ${{ secrets.GITHUB_TOKEN }}
+              
             - name: Docker build for testing
               uses: docker/build-push-action@v4
               with:
@@ -147,9 +167,30 @@ jobs:
                 echo Testing Image URL using wget
                 wget -q -O - 127.0.0.1:3000/live | grep live
 
-            - name: Docker push
+# disabled in favor of step pushing to GHCR.io
+            # - name: Docker push
+            #   uses: docker/build-push-action@v4
+            #   with:
+            #     context: .
+            #     push: false # true
+            #     tags: ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}
+
+# To publish images accosiated with WF into GitHub Container Registry (GHCR) - we need GitHub token to  authenticate,
+#
+# And a personal access token (classic) with at least `read:packages` scope to install packages associated
+# with other private repositories (which GITHUB_TOKEN can't access).
+# $ export $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+# where USERNAME is your account name
+# password - github token
+# $ docker push ghcr.io/NAMESPACE/IMAGE_NAME_:latest
+
+
+# this way we can push to 2 several registries in one step
+            - name: Pushing to Docker Hub and to Github Container Registry GHCR.io
               uses: docker/build-push-action@v4
               with:
                 context: .
                 push: true
-                tags: ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}
+                tags: |
+                    ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}
+                    ghcr.io/${{  github.rpeository_owner }}/solar-system:${{ github.sha }}
